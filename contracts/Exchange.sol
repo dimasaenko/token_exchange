@@ -11,6 +11,8 @@ contract Exchange is  OnlyOwnerContract {
         OrderSellBook sellBook;
     }
 
+    event TokenAdded(string code, address tokenContract);
+
     string[] tokenCodes;
     mapping (string => Token) tokens;
 
@@ -19,7 +21,22 @@ contract Exchange is  OnlyOwnerContract {
         var token = Token(tokenContract, new OrderBuyBook(), new OrderSellBook());
         tokenCodes.push(code);
         tokens[code] = token;
+        TokenAdded(code, tokenContract);
     }
+
+    function hasToken(string code) constant returns (bool result) {
+        return tokens[code].tokenContract != address(0x0);
+    }
+
+    /* function tokenList() constant returns (bytes32[] codes, address[] addresses) {
+        codes = string[](tokenCodes.length);
+        addresses = address[](tokenCodes.length);
+
+        for(uint i = 0; i < tokenCodes.length; i++) {
+            codes[i] = bytes32(tokenCodes[i]);
+            addresses[i] = tokens[tokenCodes[i]].tokenContract;
+        }
+    } */
 
     /* function placeBuyOrder(uint price, uint amount) {
 
