@@ -1,0 +1,53 @@
+{
+  "contract_name": "OrderBook",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "orders",
+      "outputs": [
+        {
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "price",
+          "type": "uint256"
+        },
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "addOrder",
+      "outputs": [],
+      "payable": false,
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "type": "constructor"
+    }
+  ],
+  "unlinked_binary": "0x6060604052341561000f57600080fd5b5b5b5b61010f806100216000396000f300606060405263ffffffff7c0100000000000000000000000000000000000000000000000000000000600035041663a85c38ef81146046578063f28db6c4146071575b600080fd5b3415605057600080fd5b60596004356089565b60405191825260208201526040908101905180910390f35b3415607b57600080fd5b608760043560243560a2565b005b6001602081905260009182526040909120805491015482565b6000805460010190556040805190810160409081528382526020808301849052600080548152600190915220815181556020820151600190910155505b50505600a165627a7a7230582074f4ecb3fe56dcfa602aa58c4188c87de2e34e358584d752987464d986c4a66b0029",
+  "networks": {},
+  "schema_version": "0.0.5",
+  "updated_at": 1514058111551
+}
