@@ -117,7 +117,7 @@ contract('OrderBuyBook', function(accounts) {
       addOrder(instance, 1);
       return orderBook.getList.call();
     }).then(function(result){
-     assertItems(result, [1, 1, 2]);
+      assertItems(result, [1, 1, 2]);
     });
   });
 });
@@ -133,12 +133,10 @@ contract('OrderBook', function(accounts) {
       addOrder(instance, 1);
       return orderBook.getList.call();
     }).then(function(result){
-     assertItems(result, [0, 1, 2, 3]);
+      assertItems(result, [0, 1, 2, 3]);
     });
   });
 });
-
-
 
 contract('OrderBook', function(accounts) {
   it("33@12, 33@11, 33@34 => 33@34, 33@11, 33@12", function() {
