@@ -1,7 +1,7 @@
 pragma solidity ^0.4.4;
 
-import "./TokenManager.sol";
+import "./BalanceBook.sol";
 
-contract Exchange is  TokenManager {
+contract Exchange is  BalanceBook {
 
 }
