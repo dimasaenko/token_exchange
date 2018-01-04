@@ -11,6 +11,11 @@ contract TokenManager is  OnlyOwnerContract {
         OrderSellBook sellBook;
     }
 
+    modifier tokenRequired(bytes32 code) {
+        require(hasToken(code));
+        _;
+    }
+
     event TokenAdded(bytes32 code, address tokenContract);
 
     bytes32[] tokenCodes;
