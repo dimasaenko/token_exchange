@@ -38,57 +38,65 @@ contract('balanceEth', function(accounts) {
 		});
 	});
 
+    function assertEvent(eventLog, eventName, sender, amount) {
+        assert.equal(eventLog.event,
+            eventName, eventName + " Event should be emitted");
+        assert.equal(eventLog.args.sender, sender,
+            "Sender address in Event should be account address");
+        assert.equal(eventLog.args.amount, amount,
+            "Amount in Event should be deposit amount");
+    }
+
 	it("it should be possible to deposit eth", function() {
         var gasPrice = 100000000000; //Default price on testRPC
-        var accountBalanceBefore = web3.eth.getBalance(accounts[1]).toNumber();
+        var acc = accounts[1];
+        var accountBalanceBefore = web3.eth.getBalance(acc).toNumber();
         var amount = Number(web3.toWei(1, 'ether'));
 
-        return exchangeInstance.getEthBalance({from: accounts[1]}).then(function(balance) {
+        return exchangeInstance.getEthBalance({from: acc}).then(function(balance) {
             assert.equal(balance, 0, 'Exchange balance should 0');
-            return exchangeInstance.depositEth({from: accounts[1], value: amount})
+            return exchangeInstance.depositEth({from: acc, value: amount});
         }).then(function(txResult){
-            assert.equal(txResult.logs[0].event,
-                "DepositEth", "DepositEth Event should be emitted");
-            assert.equal(txResult.logs[0].args.sender, accounts[1],
-                "Sender address in Event should be account address");
-            assert.equal(txResult.logs[0].args.amount, amount,
-                "Amount in Event should be deposit amount");
+            assertEvent(txResult.logs[0], 'DepositEth', acc, amount);
 
             var etherSpent = Number(txResult.receipt.gasUsed) * gasPrice + amount;
             assert.equal(
-                etherSpent + web3.eth.getBalance(accounts[1]).toNumber(),
+                etherSpent + web3.eth.getBalance(acc).toNumber(),
                 accountBalanceBefore, 'Account balance check');
-            return exchangeInstance.getEthBalance({from: accounts[1]});
+            return exchangeInstance.getEthBalance({from: acc});
         }).then(function(balance) {
-            assert.equal(balance, amount, 'Exchange balance should be equal to deposit amount');
+            assert.equal(
+                balance,
+                amount,
+                'Exchange balance should be equal to deposit amount'
+            );
         });
 	});
 
-    // it("it should be possible to withdraw eth", function() {
-    //     var gasPrice = 100000000000; //Default price on testRPC
-    //     var accountBalanceBefore = web3.eth.getBalance(accounts[1]).toNumber();
-    //     var amount = Number(web3.toWei(0.65, 'ether'));
-    //     var exchangeBalanceBefore;
-    //
-    //     return exchangeInstance.getEthBalance({from: accounts[1]}).then(function(balance) {
-    //         assert.equal(balance, 0, 'Exchange balance should 0');
-    //         return exchangeInstance.depositEth({from: accounts[1], value: amount})
-    //     }).then(function(txResult){
-    //         assert.equal(txResult.logs[0].event,
-    //             "DepositEth", "DepositEth Event should be emitted");
-    //         assert.equal(txResult.logs[0].args.sender, accounts[1],
-    //             "Sender address in Event should be account address");
-    //         assert.equal(txResult.logs[0].args.amount, amount,
-    //             "Amount in Event should be deposit amount");
-    //
-    //         var etherSpent = Number(txResult.receipt.gasUsed) * gasPrice + amount;
-    //         assert.equal(
-    //             etherSpent + web3.eth.getBalance(accounts[1]).toNumber(),
-    //             accountBalanceBefore, 'Account balance check');
-    //         return exchangeInstance.getEthBalance({from: accounts[1]});
-    //     }).then(function(balance) {
-    //         assert.equal(balance, amount, 'Exchange balance should be equal to deposit amount');
-    //     });
-    // });
+    it("it should be possible to withdraw eth", function() {
+        var gasPrice = 100000000000; //Default price on testRPC
+        var accountBalanceBefore = web3.eth.getBalance(accounts[1]).toNumber();
+        var amount = Number(web3.toWei(0.65, 'ether'));
+        var acc = accounts[1];
+        var exchangeBalanceBefore;
+
+        return exchangeInstance.getEthBalance({from: acc}).then(function(balance) {
+            exchangeBalanceBefore = balance;
+            return exchangeInstance.withdrawEth(amount, {from: acc});
+        }).then(function(txResult){
+            assertEvent(txResult.logs[0], 'WithdrawalEth', acc, amount);
+            var etherGet = amount - Number(txResult.receipt.gasUsed) * gasPrice;
+            assert.equal(
+                etherGet + accountBalanceBefore,
+                web3.eth.getBalance(acc).toNumber(), 'Account balance check');
+            return exchangeInstance.getEthBalance({from: acc});
+        }).then(function(currentBalance) {
+            assert.equal(
+                Number(currentBalance) + amount,
+                exchangeBalanceBefore,
+                'Exchange balance should be amount+balanceBefore'
+            );
+        });
+    });
 
 });
