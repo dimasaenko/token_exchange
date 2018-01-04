@@ -11,12 +11,12 @@ contract Exchange is  OnlyOwnerContract {
         OrderSellBook sellBook;
     }
 
-    event TokenAdded(string code, address tokenContract);
+    event TokenAdded(bytes32 code, address tokenContract);
 
-    string[] tokenCodes;
-    mapping (string => Token) tokens;
+    bytes32[] tokenCodes;
+    mapping (bytes32 => Token) tokens;
 
-    function addToken(string code, address tokenContract) onlyOwner() {
+    function addToken(bytes32 code, address tokenContract) onlyOwner() {
         require(tokens[code].tokenContract == address(0x0));
         var token = Token(tokenContract, new OrderBuyBook(), new OrderSellBook());
         tokenCodes.push(code);
@@ -24,29 +24,17 @@ contract Exchange is  OnlyOwnerContract {
         TokenAdded(code, tokenContract);
     }
 
-    function hasToken(string code) constant returns (bool result) {
+    function hasToken(bytes32 code) constant returns (bool result) {
         return tokens[code].tokenContract != address(0x0);
     }
 
-    /* function tokenList() constant returns (bytes32[] codes, address[] addresses) {
-        codes = string[](tokenCodes.length);
-        addresses = address[](tokenCodes.length);
+    function getTokenList() constant returns (bytes32[]) {
+        var len = tokenCodes.length;
+        bytes32[] memory codes = new bytes32[](len);
 
         for(uint i = 0; i < tokenCodes.length; i++) {
             codes[i] = bytes32(tokenCodes[i]);
-            addresses[i] = tokens[tokenCodes[i]].tokenContract;
         }
-    } */
-
-    /* function placeBuyOrder(uint price, uint amount) {
-
+        return codes;
     }
-
-    function placeSellOrder(uint price, uint amount) {
-
-    }
-
-    function getBalance() constant returns (string currencies, uint amount){
-
-    } */
 }

@@ -4,11 +4,11 @@ var TokenCDF = artifacts.require("./TokenCDF.sol");
 var Exchange = artifacts.require("./Exchange.sol");
 
 contract('exchange_adding_tokens', function(accounts) {
-  it("should be possible to add tokens", function () {
-      var tokenInstanceABC;
-      var tokenInstanceXYZ;
-      var exchangeInstance;
+  var tokenInstanceABC;
+  var tokenInstanceXYZ;
+  var exchangeInstance;
 
+  it("should be possible to add tokens", function () {
       return TokenABC.deployed().then(function (instance) {
           tokenInstanceABC = instance;
           return Exchange.deployed();
@@ -32,6 +32,11 @@ contract('exchange_adding_tokens', function(accounts) {
           return exchangeInstance.hasToken.call("XYZ");
       }).then(function(booleanHasToken){
           assert.equal(booleanHasToken, true, "Exchange has TokenXYZ");
+          return exchangeInstance.getTokenList();
+      }).then(function(result) {
+          assert.equal(result.length, 2, "Exchange should contain only 2 tokens");
+          assert.equal(web3.toUtf8(result[0]), "ABC", "First token should be ABC");
+          assert.equal(web3.toUtf8(result[1]), "XYZ", "First token should be XYZ");
       });
   });
 });
