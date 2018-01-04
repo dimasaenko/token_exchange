@@ -5,7 +5,7 @@ import "./OrderSellBook.sol";
 import "./OnlyOwnerContract.sol";
 
 contract Exchange is  OnlyOwnerContract {
-    struct Token {
+    struct TokenBook {
         address tokenContract;
         OrderBuyBook buyBook;
         OrderSellBook sellBook;
@@ -14,27 +14,29 @@ contract Exchange is  OnlyOwnerContract {
     event TokenAdded(bytes32 code, address tokenContract);
 
     bytes32[] tokenCodes;
-    mapping (bytes32 => Token) tokens;
+    mapping (bytes32 => TokenBook) tokenBooks;
 
     function addToken(bytes32 code, address tokenContract) onlyOwner() {
-        require(tokens[code].tokenContract == address(0x0));
-        var token = Token(tokenContract, new OrderBuyBook(), new OrderSellBook());
+        require(tokenBooks[code].tokenContract == address(0x0));
+        var tokenBook = TokenBook(tokenContract, new OrderBuyBook(), new OrderSellBook());
         tokenCodes.push(code);
-        tokens[code] = token;
+        tokenBooks[code] = tokenBook;
         TokenAdded(code, tokenContract);
     }
 
     function hasToken(bytes32 code) constant returns (bool result) {
-        return tokens[code].tokenContract != address(0x0);
+        return tokenBooks[code].tokenContract != address(0x0);
     }
 
-    function getTokenList() constant returns (bytes32[]) {
+    function getTokenList() constant returns (bytes32[], address[]) {
         var len = tokenCodes.length;
         bytes32[] memory codes = new bytes32[](len);
+        address[] memory addresses = new address[](len);
 
         for(uint i = 0; i < tokenCodes.length; i++) {
             codes[i] = bytes32(tokenCodes[i]);
+            addresses[i] = tokenBooks[tokenCodes[i]].tokenContract;
         }
-        return codes;
+        return (codes, addresses);
     }
 }

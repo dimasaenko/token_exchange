@@ -34,9 +34,10 @@ contract('exchange_adding_tokens', function(accounts) {
           assert.equal(booleanHasToken, true, "Exchange has TokenXYZ");
           return exchangeInstance.getTokenList();
       }).then(function(result) {
-          assert.equal(result.length, 2, "Exchange should contain only 2 tokens");
-          assert.equal(web3.toUtf8(result[0]), "ABC", "First token should be ABC");
-          assert.equal(web3.toUtf8(result[1]), "XYZ", "First token should be XYZ");
+          var codes = result[0];
+          assert.equal(codes.length, 2, "Exchange should contain only 2 tokens");
+          assert.equal(web3.toUtf8(codes[0]), "ABC", "First token should be ABC");
+          assert.equal(web3.toUtf8(codes[1]), "XYZ", "First token should be XYZ");
       });
   });
 });
