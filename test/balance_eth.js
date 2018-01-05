@@ -1,42 +1,9 @@
-var TokenABC = artifacts.require("./TokenABC.sol");
-var TokenXYZ = artifacts.require("./TokenXYZ.sol");
-var TokenCDF = artifacts.require("./TokenCDF.sol");
 var Exchange = artifacts.require("./Exchange.sol");
 
 contract('balanceEth', function(accounts) {
-	var tokenInstanceABC;
-	var tokenCodeABC;
-	var tokenInstanceXYZ;
-	var tokenCodeXYZ;
 	var exchangeInstance;
-
-	it("save deployed tokenInstanceABC", function(){
-		return TokenABC.deployed().then(function (instance) {
-		    tokenInstanceABC = instance;
-		    return tokenInstanceABC.symbol.call();
-		}).then(function (symbol) {
-		    tokenCodeABC = symbol;
-		});
-	});
-
-	it("save deployed tokenInstanceXYZ", function(){
-		return TokenXYZ.deployed().then(function (instance) {
-			tokenInstanceXYZ = instance;
-			return tokenInstanceXYZ.symbol.call();
-		}).then(function (symbol) {
-			tokenCodeXYZ = symbol;
-		});
-	});
-
-	it("add few tokens to the exchange", function() {
-		return Exchange.deployed().then(function(instance) {
-			exchangeInstance = instance;
-		}).then(function() {
-			return exchangeInstance.addToken(tokenCodeABC, tokenInstanceABC.address);
-		}).then(function() {
-			return exchangeInstance.addToken(tokenCodeXYZ, tokenInstanceXYZ.address)
-		});
-	});
+    var gasPrice = 100000000000; //Default price on testRPC
+    var acc = accounts[1];
 
     function assertEvent(eventLog, eventName, sender, amount) {
         assert.equal(eventLog.event,
@@ -48,12 +15,13 @@ contract('balanceEth', function(accounts) {
     }
 
 	it("it should be possible to deposit eth", function() {
-        var gasPrice = 100000000000; //Default price on testRPC
-        var acc = accounts[1];
         var accountBalanceBefore = web3.eth.getBalance(acc).toNumber();
         var amount = Number(web3.toWei(1, 'ether'));
 
-        return exchangeInstance.getEthBalance({from: acc}).then(function(balance) {
+        return Exchange.deployed().then(function(instance) {
+            exchangeInstance = instance;
+            return exchangeInstance.getEthBalance({from: acc});
+        }).then(function(balance) {
             assert.equal(balance, 0, 'Exchange balance should 0');
             return exchangeInstance.depositEth({from: acc, value: amount});
         }).then(function(txResult){
@@ -74,10 +42,8 @@ contract('balanceEth', function(accounts) {
 	});
 
     it("it should be possible to withdraw eth", function() {
-        var gasPrice = 100000000000; //Default price on testRPC
         var accountBalanceBefore = web3.eth.getBalance(accounts[1]).toNumber();
         var amount = Number(web3.toWei(0.65, 'ether'));
-        var acc = accounts[1];
         var exchangeBalanceBefore;
 
         return exchangeInstance.getEthBalance({from: acc}).then(function(balance) {

@@ -36,25 +36,25 @@ contract Exchange is  TokenManager {
     }
 
     /* function getTokenBalance(bytes32 code) constant tokenRequired(code) returns (uint) {
-        return balances[msg.sender].tokens[code];
+        return tokenBalance[msg.sender][code];
     }
 
     function depositToken(bytes32 code, uint amount) tokenRequired(code) {
         ERC20Interface token = ERC20Interface(tokenBooks[code].tokenContract);
         require(token.transferFrom(msg.sender, address(this), amount) == true);
-        require(balances[msg.sender].tokens[code] + amount >= balances[msg.sender].tokens[code]);
-        balances[msg.sender].tokens[code] += amount;
-        DepositTokenRecieved(msg.sender, code, amount, now);
+        require(tokenBalance[msg.sender][code] + amount >= tokenBalance[msg.sender][code]);
+        tokenBalance[msg.sender][code] += amount;
+        DepositToken(msg.sender, code, amount, now);
     }
 
     function withdrawalToken(bytes32 code, uint amount) tokenRequired(code) {
         ERC20Interface token = ERC20Interface(tokenBooks[code].tokenContract);
 
-        require(balances[msg.sender].tokens[code] - amount >= 0);
-        require(balances[msg.sender].tokens[code] - amount <= balances[msg.sender].tokens[code]);
+        require(tokenBalance[msg.sender][code] - amount >= 0);
+        require(tokenBalance[msg.sender][code] - amount <= tokenBalance[msg.sender][code]);
 
-        balances[msg.sender].tokens[code] -= amount;
+        tokenBalance[msg.sender][code] -= amount;
         require(token.transfer(msg.sender, amount) == true);
-        WithdrawalTokenSent(msg.sender, code, amount, now);
+        WithdrawalToken(msg.sender, code, amount, now);
     } */
 }
