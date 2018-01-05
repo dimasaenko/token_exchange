@@ -15,11 +15,12 @@ contract('balanceEth', function(accounts) {
     }
 
 	it("it should be possible to deposit eth", function() {
-        var accountBalanceBefore = web3.eth.getBalance(acc).toNumber();
-        var amount = Number(web3.toWei(1, 'ether'));
+        var accountBalanceBefore;
+        var amount = web3.toWei(1, 'ether');
 
         return Exchange.deployed().then(function(instance) {
             exchangeInstance = instance;
+            accountBalanceBefore = web3.eth.getBalance(acc);
             return exchangeInstance.getEthBalance({from: acc});
         }).then(function(balance) {
             assert.equal(balance, 0, 'Exchange balance should 0');
@@ -27,10 +28,14 @@ contract('balanceEth', function(accounts) {
         }).then(function(txResult){
             assertEvent(txResult.logs[0], 'DepositEth', acc, amount);
 
-            var etherSpent = Number(txResult.receipt.gasUsed) * gasPrice + amount;
             assert.equal(
-                etherSpent + web3.eth.getBalance(acc).toNumber(),
-                accountBalanceBefore, 'Account balance check');
+                accountBalanceBefore
+                    .minus(amount)
+                    .minus(txResult.receipt.gasUsed * gasPrice)
+                    .toNumber(),
+                web3.eth.getBalance(acc).toNumber(),
+                'Account balance check'
+            );
             return exchangeInstance.getEthBalance({from: acc});
         }).then(function(balance) {
             assert.equal(
@@ -42,8 +47,8 @@ contract('balanceEth', function(accounts) {
 	});
 
     it("it should be possible to withdraw eth", function() {
-        var accountBalanceBefore = web3.eth.getBalance(accounts[1]).toNumber();
-        var amount = Number(web3.toWei(0.65, 'ether'));
+        var accountBalanceBefore = web3.eth.getBalance(accounts[1]);
+        var amount = web3.toWei(0.65, 'ether');
         var exchangeBalanceBefore;
 
         return exchangeInstance.getEthBalance({from: acc}).then(function(balance) {
@@ -51,15 +56,20 @@ contract('balanceEth', function(accounts) {
             return exchangeInstance.withdrawEth(amount, {from: acc});
         }).then(function(txResult){
             assertEvent(txResult.logs[0], 'WithdrawalEth', acc, amount);
-            var etherGet = amount - Number(txResult.receipt.gasUsed) * gasPrice;
+
+            var etherGet = web3.toBigNumber(amount)
+                .minus(txResult.receipt.gasUsed * gasPrice);
+
             assert.equal(
-                etherGet + accountBalanceBefore,
-                web3.eth.getBalance(acc).toNumber(), 'Account balance check');
+                accountBalanceBefore.plus(etherGet).toNumber(),
+                web3.eth.getBalance(acc).toNumber(),
+                'Account balance check'
+            );
             return exchangeInstance.getEthBalance({from: acc});
         }).then(function(currentBalance) {
             assert.equal(
-                Number(currentBalance) + amount,
-                exchangeBalanceBefore,
+                currentBalance.plus(amount).toNumber(),
+                exchangeBalanceBefore.toNumber(),
                 'Exchange balance should be amount+balanceBefore'
             );
         });

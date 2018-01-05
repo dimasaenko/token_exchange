@@ -35,7 +35,7 @@ contract Exchange is  TokenManager {
         WithdrawalEth(msg.sender, _amount, now);
     }
 
-    /* function getTokenBalance(bytes32 code) constant tokenRequired(code) returns (uint) {
+    function getTokenBalance(bytes32 code) constant tokenRequired(code) returns (uint) {
         return tokenBalance[msg.sender][code];
     }
 
@@ -47,7 +47,7 @@ contract Exchange is  TokenManager {
         DepositToken(msg.sender, code, amount, now);
     }
 
-    function withdrawalToken(bytes32 code, uint amount) tokenRequired(code) {
+    function withdrawToken(bytes32 code, uint amount) tokenRequired(code) {
         ERC20Interface token = ERC20Interface(tokenBooks[code].tokenContract);
 
         require(tokenBalance[msg.sender][code] - amount >= 0);
@@ -56,5 +56,5 @@ contract Exchange is  TokenManager {
         tokenBalance[msg.sender][code] -= amount;
         require(token.transfer(msg.sender, amount) == true);
         WithdrawalToken(msg.sender, code, amount, now);
-    } */
+    }
 }
