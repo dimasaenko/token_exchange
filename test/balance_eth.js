@@ -1,6 +1,6 @@
 var Exchange = artifacts.require("./Exchange.sol");
 
-contract('balanceEth', function(accounts) {
+contract('Exchange', function(accounts) {
 	var exchangeInstance;
     var gasPrice = 100000000000; //Default price on testRPC
     var acc = accounts[1];
@@ -11,7 +11,7 @@ contract('balanceEth', function(accounts) {
         assert.equal(eventLog.args.sender, sender,
             "Sender address in Event should be account address");
         assert.equal(eventLog.args.amount, amount,
-            "Amount in Event should be deposit amount");
+            "Amount in Event should be deposit/withdraw amount");
     }
 
 	it("it should be possible to deposit eth", function() {

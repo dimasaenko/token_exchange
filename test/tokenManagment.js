@@ -3,7 +3,7 @@ var TokenXYZ = artifacts.require("./TokenXYZ.sol");
 var TokenCDF = artifacts.require("./TokenCDF.sol");
 var Exchange = artifacts.require("./Exchange.sol");
 
-contract('exchange_adding_tokens', function(accounts) {
+contract('Exchange', function(accounts) {
   var tokenInstanceABC;
   var tokenCodeABC;
   var tokenInstanceXYZ;

@@ -63,11 +63,11 @@ function assertItems(list, indexes) {
 contract('OrderBuyBook', function(accounts) {
   it("20, 50, 100 => 20, 50, 100", function() {
     var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
+    return OrderBuyBook.new().then(function(instance) {
       orderBook = instance;
-      addOrder(instance, 0);
-      addOrder(instance, 1);
-      addOrder(instance, 2);
+      addOrder(orderBook, 0);
+      addOrder(orderBook, 1);
+      addOrder(orderBook, 2);
       return orderBook.getList.call();
     }).then(function(result){
      assertItems(result, [0, 1, 2]);
@@ -78,11 +78,11 @@ contract('OrderBuyBook', function(accounts) {
 contract('OrderBuyBook', function(accounts) {
   it("100, 50, 20 => 20, 50, 100", function() {
     var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
+    return OrderBuyBook.new().then(function(instance) {
       orderBook = instance;
-      addOrder(instance, 2);
-      addOrder(instance, 1);
-      addOrder(instance, 0);
+      addOrder(orderBook, 2);
+      addOrder(orderBook, 1);
+      addOrder(orderBook, 0);
       return orderBook.getList.call();
     }).then(function(result){
      assertItems(result, [0, 1, 2]);
@@ -93,62 +93,73 @@ contract('OrderBuyBook', function(accounts) {
 contract('OrderBuyBook', function(accounts) {
   it("100, 20, 50 => 20, 50, 100", function() {
     var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
-      orderBook = instance;
-      addOrder(instance, 2);
-      addOrder(instance, 0);
-      return orderBook.getList.call();
+    return OrderBuyBook.new().then(function(instance) {
+        orderBook = instance;
+        addOrder(orderBook, 2);
+        addOrder(orderBook, 0);
+        return orderBook.getList();
+    }).then(function(result1){
+        assertLength(result1, 2);
+        addOrder(orderBook, 1);
+        return orderBook.getList();
     }).then(function(result){
-      addOrder(orderBook, 1);
-      return orderBook.getList.call();
-    }).then(function(result){
-      assertItems(result, [0, 1, 2]);
+        assertItems(result, [0, 1, 2]);
     });
   });
 });
 
 contract('OrderBuyBook', function(accounts) {
-  it("50, 100, 50 => 50, 50, 100", function() {
-    var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
-      orderBook = instance;
-      addOrder(instance, 1);
-      addOrder(instance, 2);
-      addOrder(instance, 1);
-      return orderBook.getList.call();
-    }).then(function(result){
-      assertItems(result, [1, 1, 2]);
+    it("50, 100, 50 => 50, 50, 100", function() {
+        var orderBook;
+        return OrderBuyBook.new()
+        .then(function(instance) {
+            orderBook = instance;
+            return instance.getList.call();
+        }).then(function(result){
+            assertLength(result, 0);
+            addOrder(orderBook, 1);
+            addOrder(orderBook, 2);
+            addOrder(orderBook, 1);
+            return orderBook.getList.call();
+        }).then(function(result){
+            assertItems(result, [1, 1, 2]);
+        });
     });
-  });
 });
 
 contract('OrderBook', function(accounts) {
-  it("103, 20, 100, 50 => 20, 50, 100, 103", function() {
-    var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
-      orderBook = instance;
-      addOrder(instance, 3);
-      addOrder(instance, 0);
-      addOrder(instance, 2);
-      addOrder(instance, 1);
-      return orderBook.getList.call();
-    }).then(function(result){
-      assertItems(result, [0, 1, 2, 3]);
+    it("103, 20, 100, 50 => 20, 50, 100, 103", function() {
+        var orderBook;
+        return OrderBuyBook.new().then(function(instance) {
+            orderBook = instance;
+            return instance.getList.call();
+        }).then(function(result){
+            assertLength(result, 0);
+            addOrder(orderBook, 3);
+            addOrder(orderBook, 0);
+            addOrder(orderBook, 2);
+            addOrder(orderBook, 1);
+            return orderBook.getList.call();
+        }).then(function(result){
+            assertItems(result, [0, 1, 2, 3]);
+        });
     });
-  });
 });
 
 contract('OrderBook', function(accounts) {
-  it("33@12, 33@11, 33@34 => 33@34, 33@11, 33@12", function() {
-    var orderBook;
-    return OrderBuyBook.deployed().then(function(instance) {
-      orderBook = instance;
-      addOrder(instance, 4);
-      addOrder(instance, 5);
-      addOrder(instance, 6);
-      return instance.getList.call();
-    }).then(function(result){
-      assertItems(result, [6, 5, 4]);
+    it("33@12, 33@11, 33@34 => 33@34, 33@11, 33@12", function() {
+        var orderBook;
+        return OrderBuyBook.new().then(function(instance) {
+            orderBook = instance;
+            return instance.getList.call();
+        }).then(function(result){
+            assertLength(result, 0);
+            addOrder(orderBook, 4);
+            addOrder(orderBook, 5);
+            addOrder(orderBook, 6);
+            return orderBook.getList.call();
+        }).then(function(result){
+            assertItems(result, [6, 5, 4]);
+        });
     });
-  });
 });

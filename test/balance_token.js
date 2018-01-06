@@ -1,7 +1,7 @@
 var TokenABC = artifacts.require("./TokenABC.sol");
 var Exchange = artifacts.require("./Exchange.sol");
 
-contract('balanceEth', function(accounts) {
+contract('Exchange', function(accounts) {
 	var tokenInstanceABC;
 	var tokenCodeABC;
 	var exchangeInstance;
@@ -26,7 +26,7 @@ contract('balanceEth', function(accounts) {
         assert.equal(eventLog.args.sender, sender,
             "Sender address in Event should be account address");
         assert.equal(eventLog.args.amount.toNumber(), amount,
-            "Amount in Event should be deposit amount");
+            "Amount in Event should be deposit/withdraw amount");
         assert.equal(web3.toUtf8(eventLog.args.token), token,
             "Token in Event should be token symbol");
     }
@@ -91,5 +91,4 @@ contract('balanceEth', function(accounts) {
             );
         });
     });
-
 });
