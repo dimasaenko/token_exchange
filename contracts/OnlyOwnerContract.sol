@@ -1,14 +1,14 @@
 pragma solidity ^0.4.4;
 
 contract OnlyOwnerContract {
-  address owner;
+    address owner;
 
-  modifier onlyOwner() {
-    require(msg.sender == owner);
-    _;
-  }
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
 
-  function OnlyOwnerContract() {
-    owner = msg.sender;
-  }
+    function OnlyOwnerContract() {
+        owner = msg.sender;
+    }
 }
