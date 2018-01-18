@@ -12,8 +12,8 @@ For each market token/ether we have two OrderBooks. One for buying tokens and on
 
 We need to implement the linked list for OrderBook, it will allow us to do search with the lowest costs.
 For example we need to create SellBook: the cheapest proposition will the first, and so on..
-If you want to provide an cheaper offer, you will spent less gas.
-If you want to place an sell order with a higher price, you need to go down in the list and pay more gas.
+If you want to provide a cheaper offer, you will spent less gas.
+If you want to place a sell order with a higher price, you need to go down in the list and pay more gas.
 
 For buying the OrderBook works the same way, main difference the first order is the order with the highest price.
 
