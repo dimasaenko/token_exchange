@@ -29,16 +29,6 @@ function assertLength(list, length){
     assert.equal(list[2].length, length, "Address Length should be "+length);
 }
 
-function assertEvent(txResult, item){
-    assert.equal(txResult.logs[0].event,
-        newOrderEventName, newOrderEventName + " Event should be emitted");
-    assert.equal(txResult.logs[0].args.price.toNumber(), item.price,
-        "Price in Event should be " + item.price);
-    assert.equal(txResult.logs[0].args.amount.toNumber(), item.amount,
-        "Amount in Event should be " + item.amount);
-    assert.equal(txResult.logs[0].args.owner, item.address,
-        "Address in Event should be account address");
-}
 
 contract('orderSellBook', function(accounts) {
     it("20, 50, 100 => 20, 50, 100", function() {
@@ -52,14 +42,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_20);
         }).then(function(txResult){
-            assertEvent(txResult, item_20);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_20);
             return addOrder(orderBook, item_50);
         }).then(function(txResult){
-            assertEvent(txResult, item_50);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -67,7 +55,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_50);
             return addOrder(orderBook, item_100);
         }).then(function(txResult){
-            assertEvent(txResult, item_100);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -87,14 +74,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_100);
         }).then(function(txResult){
-            assertEvent(txResult, item_100);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_100);
             return addOrder(orderBook, item_50);
         }).then(function(txResult){
-            assertEvent(txResult, item_50);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -102,7 +87,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_100);
             return addOrder(orderBook, item_20);
         }).then(function(txResult){
-            assertEvent(txResult, item_20);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -123,14 +107,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_100);
         }).then(function(txResult){
-            assertEvent(txResult, item_100);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_100);
             return addOrder(orderBook, item_20);
         }).then(function(txResult){
-            assertEvent(txResult, item_20);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -138,7 +120,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_100);
             return addOrder(orderBook, item_50);
         }).then(function(txResult){
-            assertEvent(txResult, item_50);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -158,14 +139,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_50_15);
         }).then(function(txResult){
-            assertEvent(txResult, item_50_15);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_50_15);
             return addOrder(orderBook, item_20);
         }).then(function(txResult){
-            assertEvent(txResult, item_20);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -173,7 +152,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_50_15);
             return addOrder(orderBook, item_50_20);
         }).then(function(txResult){
-            assertEvent(txResult, item_50_20);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -196,14 +174,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_100_11);
         }).then(function(txResult){
-            assertEvent(txResult, item_100_11);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_100_11);
             return addOrder(orderBook, item_50_27);
         }).then(function(txResult){
-            assertEvent(txResult, item_50_27);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -211,7 +187,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_100_11);
             return addOrder(orderBook, item_20_17);
         }).then(function(txResult){
-            assertEvent(txResult, item_20_17);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -220,7 +195,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 2, item_100_11);
             return addOrder(orderBook, item_50_13);
         }).then(function(txResult){
-            assertEvent(txResult, item_50_13);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 4);
@@ -231,7 +205,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 3, item_100_11);
             return addOrder(orderBook, item_100_14);
         }).then(function(txResult){
-            assertEvent(txResult, item_100_14);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 5);
@@ -276,14 +249,12 @@ contract('orderSellBook', function(accounts) {
             orderBook = instance;
             return addOrder(orderBook, item_44_12);
         }).then(function(txResult){
-            assertEvent(txResult, item_44_12);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 1);
             assertItem(result, 0, item_44_12);
             return addOrder(orderBook, item_33_3);
         }).then(function(txResult){
-            assertEvent(txResult, item_33_3);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 2);
@@ -291,7 +262,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 1, item_44_12);
             return addOrder(orderBook, item_33_8);
         }).then(function(txResult){
-            assertEvent(txResult, item_33_8);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 3);
@@ -300,7 +270,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 2, item_44_12);
             return addOrder(orderBook, item_44_8);
         }).then(function(txResult){
-            assertEvent(txResult, item_44_8);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 4);
@@ -311,7 +280,6 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 3, item_44_8);
             return addOrder(orderBook, item_33_7);
         }).then(function(txResult){
-            assertEvent(txResult, item_33_7);
             return orderBook.getList.call();
         }).then(function(result){
             assertLength(result, 5);
