@@ -3,8 +3,6 @@ pragma solidity ^0.4.4;
 import "./AbstractOrderBook.sol";
 
 contract OrderBuyBook is AbstractOrderBook {
-    event NewBuyOrder(uint price, uint amount, address owner);
-
     function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() {
         require(_price > 0 && _amount > 0);
         increment_id += 1;
@@ -28,9 +26,5 @@ contract OrderBuyBook is AbstractOrderBook {
             current = list[current].next;
         }
         _addAsLast(newOrder, id);
-    }
-
-    function fireNewOrderEvent(uint _price, uint _amount, address _owner) {
-        NewBuyOrder(_price, _amount, _owner);
     }
 }

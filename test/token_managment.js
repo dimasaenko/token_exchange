@@ -59,4 +59,17 @@ contract('Exchange', function(accounts) {
             assert.equal(web3.toUtf8(codes[1]), tokenCodeXYZ, "First token should be XYZ");
         });
     });
+
+    it("should throw exception if the same token tried to be added", function(){
+        return Exchange.new().then(function (instance) {
+            exchangeInstance = instance;
+            return exchangeInstance.addToken(tokenCodeABC, tokenInstanceABC.address);
+        }).then(function(){
+            return exchangeInstance.addToken(tokenCodeABC, tokenInstanceABC.address);
+        }).then(function(){
+            assert.fail('Expected throw not received');
+        }).catch(function(exception) {
+            assert.success;
+        });
+    })
 });

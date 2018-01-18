@@ -323,4 +323,32 @@ contract('orderSellBook', function(accounts) {
             assertItem(result, 4, item_44_8);
         });
     });
+
+    it("It should be able to reduce first order", function() {
+        var orderBook;
+
+        var item_20 = {price : 20, amount : 100, address : accounts[2]};
+        var item_25 = {price : 25, amount : 300, address : accounts[1]};
+        var item_30 = {price : 30, amount : 40, address : accounts[3]};
+        var new_item_20 = {price : 20, amount : 60, address : accounts[2]};
+
+        return OrderSellBook.new().then(function(instance) {
+            orderBook = instance;
+            return addOrder(orderBook, item_25);
+        }).then(function(result){
+            return addOrder(orderBook, item_30);
+        }).then(function(result){
+            return addOrder(orderBook, item_20);
+        }).then(function(result){
+            return orderBook.reduceFirstOrder(20, 40, accounts[2]);
+        }).then(function(result){
+            return orderBook.getList.call();
+        }).then(function(result){
+            assertLength(result, 3);
+            // 33@3, 33@8, 33@7, 44@12, 44@8
+            assertItem(result, 0, new_item_20);
+            assertItem(result, 1, item_25);
+            assertItem(result, 2, item_30);
+        });
+    });
 });

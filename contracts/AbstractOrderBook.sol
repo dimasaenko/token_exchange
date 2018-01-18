@@ -24,14 +24,11 @@ contract AbstractOrderBook is OnlyOwnerContract {
 
     function addOrder(uint _price, uint _amount, address _owner) public onlyOwner();
 
-    function fireNewOrderEvent(uint _price, uint _amount, address _owner);
-
     function _addAsInitial(Order newOrder, uint id) internal {
         first = id;
         last = id;
         list[id] = ItemList(id, id, newOrder);
         lenght += 1;
-        fireNewOrderEvent(newOrder.price, newOrder.amount, newOrder.owner);
     }
 
     function _addAsFirst(Order newOrder, uint id) internal {
@@ -39,16 +36,13 @@ contract AbstractOrderBook is OnlyOwnerContract {
         list[id] = ItemList(id, first, newOrder);
         first = id;
         lenght += 1;
-        fireNewOrderEvent(newOrder.price, newOrder.amount, newOrder.owner);
     }
-
 
     function _addAsLast(Order newOrder, uint id) internal {
         list[last].next = id;
         list[id] = ItemList(last, id, newOrder);
         last = id;
         lenght += 1;
-        fireNewOrderEvent(newOrder.price, newOrder.amount, newOrder.owner);
     }
 
     function _addAfter(Order newOrder, uint id, uint _after) internal {
@@ -57,7 +51,6 @@ contract AbstractOrderBook is OnlyOwnerContract {
         list[_after].next = id;
         list[next].prev = id;
         lenght += 1;
-        fireNewOrderEvent(newOrder.price, newOrder.amount, newOrder.owner);
     }
 
     function _addBefore(Order newOrder, uint id, uint before) internal {
@@ -66,7 +59,6 @@ contract AbstractOrderBook is OnlyOwnerContract {
         list[prev].next = id;
         list[before].prev = id;
         lenght += 1;
-        fireNewOrderEvent(newOrder.price, newOrder.amount, newOrder.owner);
     }
 
     function getList() public constant returns (uint[] _prices, uint[] _amounts, address[] _owners) {
@@ -99,8 +91,28 @@ contract AbstractOrderBook is OnlyOwnerContract {
         }
     }
 
-    function getLastItem() constant returns (uint, uint, address) {
-        Order memory item = list[last].order;
+    function getFirstOrder() constant returns (uint, uint, address) {
+        Order memory item = list[first].order;
         return (item.price, item.amount, item.owner);
+    }
+
+    function reduceFirstOrder(uint _price, uint _amount, address _owner) external {
+        var order = list[first].order;
+        require(order.price == _price && order.owner == _owner);
+        require(order.amount >= _amount && order.amount > order.amount - _amount);
+        list[first].order.amount = order.amount - _amount;
+    }
+
+    function removeFirstOrder(uint _price, uint _amount, address _owner) external {
+        var order = list[first].order;
+        require(
+            order.price == _price &&
+            order.owner == _owner &&
+            order.amount == _amount
+        );
+        var _first = list[first].next;
+        delete list[first];
+        first = _first;
+        lenght -= 1;
     }
 }
