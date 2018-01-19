@@ -8,6 +8,8 @@ contract AbstractOrderBook is OnlyOwnerContract {
     uint first;
     uint increment_id;
 
+    event OrderCancel(uint price, uint amount, address owner, uint id);
+
     struct Order {
         uint price;
         uint amount;
@@ -22,7 +24,7 @@ contract AbstractOrderBook is OnlyOwnerContract {
 
     mapping (uint => ItemList) internal list;
 
-    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner();
+    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint) ;
 
     function _addAsInitial(Order newOrder, uint id) internal {
         first = id;
@@ -114,5 +116,29 @@ contract AbstractOrderBook is OnlyOwnerContract {
         delete list[first];
         first = _first;
         lenght -= 1;
+    }
+
+    function cancelOrder(uint _id, address _owner) onlyOwner() returns (uint price, uint amount) {
+        var item = list[_id];
+        require(item.order.owner == _owner);
+        price = item.order.price;
+        amount = item.order.amount;
+        var prev = item.prev;
+        var next = item.next;
+
+        if (first != _id) {
+            list[prev].next = next;
+        } else {
+            first = next;
+        }
+
+        if (last != _id) {
+            list[next].prev = prev;
+        } else {
+            last = prev;
+        }
+        lenght -= 1;
+        OrderCancel(item.order.price, item.order.amount, item.order.owner, _id);
+        delete list[_id];
     }
 }

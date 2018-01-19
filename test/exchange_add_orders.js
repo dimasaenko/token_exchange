@@ -137,6 +137,7 @@ contract('Exchange', function(accounts) {
 
             return exchangeInstance.addSellOrder(tokenCodeABC, sellPrice1, sellAmount1, {from: accounts[2]})
         .then(function(result){
+            assertNewSellOrderEvent(result, sellPrice1, sellAmount1, accounts[2]);
             return exchangeInstance.addSellOrder(tokenCodeABC, sellPrice2, sellAmount2, {from: accounts[2]});
         }).then(function(result){
             return exchangeInstance.addSellOrder(tokenCodeABC, sellPrice3, sellAmount3, {from: accounts[2]});

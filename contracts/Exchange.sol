@@ -13,6 +13,8 @@ contract Exchange is  TokenManager {
     event DepositToken(address sender, bytes32 token, uint amount, uint timestamp);
     event WithdrawalToken(address sender, bytes32 token, uint amount, uint timestamp);
 
+    event OrderCancel(uint price, uint amount, address owner, uint id);
+
     function getEthBalance() constant returns (uint) {
         return ethBalance[msg.sender];
     }
@@ -84,8 +86,8 @@ contract Exchange is  TokenManager {
     }
 
     event OrderClosed(uint price, uint amount, address buyer, address seller);
-    event NewSellOrder(uint price, uint amount, address owner);
-    event NewBuyOrder(uint price, uint amount, address owner);
+    event NewSellOrder(uint price, uint amount, address owner, uint id);
+    event NewBuyOrder(uint price, uint amount, address owner, uint id);
 
 
     function getSellBook(bytes32 _code) constant returns (address) {
@@ -107,8 +109,8 @@ contract Exchange is  TokenManager {
             var dealAmount = _amount * _price;
             require(dealAmount/_amount == _price);
             reduceEthBalance(msg.sender, dealAmount);
-            tokenBooks[_code].buyBook.addOrder(_price, _amount, msg.sender);
-            NewBuyOrder(_price, _amount, msg.sender);
+            uint id = tokenBooks[_code].buyBook.addOrder(_price, _amount, msg.sender);
+            NewBuyOrder(_price, _amount, msg.sender, id);
             return;
         }
 
@@ -141,8 +143,8 @@ contract Exchange is  TokenManager {
 
         if (orderPrice < _price || orderPrice == 0) {
             reduceTokenBalance(msg.sender, _code, _amount);
-            tokenBooks[_code].sellBook.addOrder(_price, _amount, msg.sender);
-            NewSellOrder(_price, _amount, msg.sender);
+            uint id = tokenBooks[_code].sellBook.addOrder(_price, _amount, msg.sender);
+            NewSellOrder(_price, _amount, msg.sender, id);
             return;
         }
 
@@ -165,5 +167,19 @@ contract Exchange is  TokenManager {
         increaseTokenBalance(orderOwner, _code, orderAmount);
         increaseEthBalance(msg.sender, dealAmount);
         OrderClosed(_price, orderAmount, orderOwner, msg.sender);
+    }
+
+    function cancelSellOrder(bytes32 token, uint id) tokenRequired(token) {
+        var sellBook = tokenBooks[token].sellBook;
+        var (, amount) = sellBook.cancelOrder(id, msg.sender);
+        increaseTokenBalance(msg.sender, token, amount);
+    }
+
+    function cancelBuyOrder(bytes32 token, uint id) tokenRequired(token) {
+        var buyBook = tokenBooks[token].buyBook;
+        var (price, amount) =buyBook.cancelOrder(id, msg.sender);
+        var dealAmount = price*amount;
+        require(dealAmount/price == amount);
+        increaseEthBalance(msg.sender, dealAmount);
     }
 }
