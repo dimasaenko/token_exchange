@@ -169,15 +169,15 @@ contract Exchange is  TokenManager {
         OrderClosed(_price, orderAmount, orderOwner, msg.sender);
     }
 
-    function cancelSellOrder(bytes32 token, uint id) tokenRequired(token) {
+    function cancelSellOrder(bytes32 token, uint id, uint prev_item_id) tokenRequired(token) {
         var sellBook = tokenBooks[token].sellBook;
-        var (, amount) = sellBook.cancelOrder(id, msg.sender);
+        var (, amount) = sellBook.cancelOrder(id, prev_item_id, msg.sender);
         increaseTokenBalance(msg.sender, token, amount);
     }
 
-    function cancelBuyOrder(bytes32 token, uint id) tokenRequired(token) {
+    function cancelBuyOrder(bytes32 token, uint id, uint prev_item_id) tokenRequired(token) {
         var buyBook = tokenBooks[token].buyBook;
-        var (price, amount) =buyBook.cancelOrder(id, msg.sender);
+        var (price, amount) =buyBook.cancelOrder(id, prev_item_id, msg.sender);
         var dealAmount = price*amount;
         require(dealAmount/price == amount);
         increaseEthBalance(msg.sender, dealAmount);

@@ -4,7 +4,6 @@ import "./OnlyOwnerContract.sol";
 
 contract AbstractOrderBook is OnlyOwnerContract {
     uint lenght;
-    uint last;
     uint first;
     uint increment_id;
 
@@ -14,52 +13,45 @@ contract AbstractOrderBook is OnlyOwnerContract {
         uint price;
         uint amount;
         address owner;
-    }
-
-    struct ItemList {
-        uint prev;
         uint next;
-        Order order;
     }
 
-    mapping (uint => ItemList) internal list;
+    mapping (uint => Order) internal list;
 
-    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint) ;
+    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint id) {
+        require(_price > 0 && _amount > 0);
+        increment_id += 1;
+        id = increment_id;
+        var newOrder = Order(_price, _amount, _owner, 0);
 
-    function _addAsInitial(Order newOrder, uint id) internal {
-        first = id;
-        last = id;
-        list[id] = ItemList(id, id, newOrder);
-        lenght += 1;
+        uint _after;
+        var current = first;
+        for (uint i = 0; i < lenght; i++) {
+            var orderPrice = list[current].price;
+            if (shouldBeBefore(orderPrice, _price)) {
+                _addAfter(newOrder, _after);
+                return id;
+            }
+            _after = current;
+            current = list[current].next;
+        }
+        _addAfter(newOrder, _after);
+        return id;
     }
 
-    function _addAsFirst(Order newOrder, uint id) internal {
-        list[first].prev = id;
-        list[id] = ItemList(id, first, newOrder);
-        first = id;
-        lenght += 1;
+    function shouldBeBefore(uint orderPrice, uint newPrice) public returns(bool){
+        return orderPrice < newPrice;
     }
 
-    function _addAsLast(Order newOrder, uint id) internal {
-        list[last].next = id;
-        list[id] = ItemList(last, id, newOrder);
-        last = id;
-        lenght += 1;
-    }
-
-    function _addAfter(Order newOrder, uint id, uint _after) internal {
-        uint next = list[_after].next;
-        list[id] = ItemList(_after, next, newOrder);
-        list[_after].next = id;
-        list[next].prev = id;
-        lenght += 1;
-    }
-
-    function _addBefore(Order newOrder, uint id, uint before) internal {
-        uint prev = list[before].prev;
-        list[id] = ItemList(prev, before, newOrder);
-        list[prev].next = id;
-        list[before].prev = id;
+    function _addAfter(Order newOrder, uint _after) internal {
+        if (_after == 0) {
+            newOrder.next = first;
+            first = increment_id;
+        } else {
+            newOrder.next = list[_after].next;
+            list[_after].next = increment_id;
+        }
+        list[increment_id] = newOrder;
         lenght += 1;
     }
 
@@ -70,9 +62,9 @@ contract AbstractOrderBook is OnlyOwnerContract {
 
         var current = first;
         for (uint i = 0; i < lenght; i++) {
-            _owners[i] = list[current].order.owner;
-            _prices[i] = list[current].order.price;
-            _amounts[i] = list[current].order.amount;
+            _owners[i] = list[current].owner;
+            _prices[i] = list[current].price;
+            _amounts[i] = list[current].amount;
             current = list[current].next;
         }
     }
@@ -84,29 +76,29 @@ contract AbstractOrderBook is OnlyOwnerContract {
 
         var current = first;
         for (uint i = 0; i < lenght; i++) {
-            if (_owner == list[current].order.owner) {
+            if (_owner == list[current].owner) {
                 _ids[i] = current;
-                _prices[i] = list[current].order.price;
-                _amounts[i] = list[current].order.amount;
+                _prices[i] = list[current].price;
+                _amounts[i] = list[current].amount;
                 current = list[current].next;
             }
         }
     }
 
     function getFirstOrder() constant returns (uint, uint, address) {
-        Order memory item = list[first].order;
+        Order memory item = list[first];
         return (item.price, item.amount, item.owner);
     }
 
     function reduceFirstOrder(uint _price, uint _amount, address _owner) external {
-        var order = list[first].order;
+        var order = list[first];
         require(order.price == _price && order.owner == _owner);
         require(order.amount >= _amount && order.amount > order.amount - _amount);
-        list[first].order.amount = order.amount - _amount;
+        list[first].amount = order.amount - _amount;
     }
 
     function removeFirstOrder(uint _price, uint _amount, address _owner) external {
-        var order = list[first].order;
+        var order = list[first];
         require(
             order.price == _price &&
             order.owner == _owner &&
@@ -118,27 +110,22 @@ contract AbstractOrderBook is OnlyOwnerContract {
         lenght -= 1;
     }
 
-    function cancelOrder(uint _id, address _owner) onlyOwner() returns (uint price, uint amount) {
-        var item = list[_id];
-        require(item.order.owner == _owner);
-        price = item.order.price;
-        amount = item.order.amount;
-        var prev = item.prev;
-        var next = item.next;
-
-        if (first != _id) {
-            list[prev].next = next;
+    function cancelOrder(uint _id, uint prev_id, address _owner) onlyOwner() returns (uint price, uint amount) {
+        var order = list[_id];
+        require(order.owner == _owner);
+        if (prev_id == 0) {
+            require(first == _id);
+            first = order.next;
         } else {
-            first = next;
+            require(list[prev_id].next == _id);
+            list[prev_id].next = order.next;
         }
 
-        if (last != _id) {
-            list[next].prev = prev;
-        } else {
-            last = prev;
-        }
+        price = order.price;
+        amount = order.amount;
+
         lenght -= 1;
-        OrderCancel(item.order.price, item.order.amount, item.order.owner, _id);
+        OrderCancel(order.price, order.amount, order.owner, _id);
         delete list[_id];
     }
 }

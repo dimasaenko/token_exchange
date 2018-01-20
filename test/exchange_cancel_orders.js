@@ -93,7 +93,7 @@ contract('Exchange', function(accounts) {
         }).then(function(result){
             tokenBalance2 -= order.amount;
             assert.equal(result.toNumber(), tokenBalance2, 'Token Balance ABC for acc[2] should be '+tokenBalance2);
-            return exchangeInstance.cancelSellOrder(tokenCodeABC, orderId, {from: accounts[2]});
+            return exchangeInstance.cancelSellOrder(tokenCodeABC, orderId, 0, {from: accounts[2]});
         }).then(function(result){
             assertOrderCancelEvent(result, order);
             return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
@@ -121,7 +121,7 @@ contract('Exchange', function(accounts) {
         }).then(function(result){
             ethBalance1 -= order.total;
             assert.equal(result.toNumber(), ethBalance1, 'Ether Balance for acc[1] should be '+ethBalance1 + ' before cancel');
-            return exchangeInstance.cancelBuyOrder(tokenCodeABC, order.id, {from: order.owner});
+            return exchangeInstance.cancelBuyOrder(tokenCodeABC, order.id, 0, {from: order.owner});
         }).then(function(result){
             assertOrderCancelEvent(result, order);
             return exchangeInstance.getEthBalance.call({from: accounts[1]});
@@ -173,8 +173,8 @@ contract('Exchange', function(accounts) {
         return exchangeInstance.addSellOrder(tokenCodeABC, item.price, item.amount, {from: item.owner});
     }
 
-    function cancelBuyOrder(exchange, item) {
-        return exchangeInstance.cancelBuyOrder(tokenCodeABC, item.id, {from: item.owner});
+    function cancelBuyOrder(item, prev_item_id) {
+        return exchangeInstance.cancelBuyOrder(tokenCodeABC, item.id, prev_item_id, {from: item.owner});
     }
 
     it("Place 5 buy orders, cancel them one by one, check order book, check eth balance", function(){
@@ -212,7 +212,7 @@ contract('Exchange', function(accounts) {
             assertOrderList(result, [item_100_11, item_100_14, item_50_27, item_50_13, item_20_17]);
         }).then(function(){
 
-            return cancelBuyOrder(exchangeInstance, item_50_13);
+            return cancelBuyOrder(item_50_13, item_50_27.id);
         }).then(function(result){
             assertOrderCancelEvent(result, item_50_13);
             return buyBook.getList.call();
@@ -224,7 +224,7 @@ contract('Exchange', function(accounts) {
             assert.equal(result.toNumber(), ethBalance1,
             'Ether Balance for acc[1] should be '+ethBalance1 + ' after cancel');
 
-            return cancelBuyOrder(exchangeInstance, item_100_11);
+            return cancelBuyOrder(item_100_11, 0);
         }).then(function(result){
             assertOrderCancelEvent(result, item_100_11);
             return buyBook.getList.call();
@@ -236,7 +236,7 @@ contract('Exchange', function(accounts) {
             assert.equal(result.toNumber(), ethBalance1,
             'Ether Balance for acc[1] should be '+ethBalance1 + ' after cancel');
 
-            return cancelBuyOrder(exchangeInstance, item_20_17);
+            return cancelBuyOrder(item_20_17, item_50_27.id);
         }).then(function(result){
             assertOrderCancelEvent(result, item_20_17);
             return buyBook.getList.call();
@@ -248,7 +248,7 @@ contract('Exchange', function(accounts) {
             assert.equal(result.toNumber(), ethBalance1,
             'Ether Balance for acc[1] should be ' + ethBalance1 + ' after cancel');
 
-            return cancelBuyOrder(exchangeInstance, item_50_27);
+            return cancelBuyOrder(item_50_27, item_100_14.id);
         }).then(function(result){
             assertOrderCancelEvent(result, item_50_27);
             return buyBook.getList.call();
@@ -260,7 +260,7 @@ contract('Exchange', function(accounts) {
             assert.equal(result.toNumber(), ethBalance1,
             'Ether Balance for acc[1] should be ' + ethBalance1 + ' after cancel');
 
-            return cancelBuyOrder(exchangeInstance, item_100_14);
+            return cancelBuyOrder(item_100_14, 0);
         }).then(function(result){
             assertOrderCancelEvent(result, item_100_14);
             return buyBook.getList.call();
