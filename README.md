@@ -1,23 +1,15 @@
 Token Exchange
 
-Roles:
-- Admin
-- User
+Owner is an account who will deploy Exchange contract to Ethereum network
 
-Admin can add ERC20 Token contracts to the exchange and create new token/ether market.
+Owner can add ERC20 Token contracts to the Exchange thereby create new token/ether market.
 
-User can deposit and withdraw ethers and allowed tokens for trading.
+User can deposit and withdraw ethers and appropriate tokens for trading.
+The Exchange has user balances of tokens and ethers.
 
-For each market token/ether we have two OrderBooks. One for buying tokens and one for selling.
+If user wants to trade his tokens to ethers, he can place sell order.
+This order will be added to sell order book.
 
-We need to implement the linked list for OrderBook, it will allow us to do search with the lowest costs.
-For example we need to create SellBook: the cheapest proposition will the first, and so on..
-If you want to provide a cheaper offer, you will spent less gas.
-If you want to place a sell order with a higher price, you need to go down in the list and pay more gas.
+Accordingly, if user wants to buy tokens, his order will go to the list in buy order book.
 
-For buying the OrderBook works the same way, main difference the first order is the order with the highest price.
-
-User can place buy order if he has enough ethers.
-User can place sell order if he has enough tokens.
-
-If the offers are matched, ClosedOrder event will be fired and balances will be updated
+When orders are matched, buyer will receive tokens, seller will receive ethers
