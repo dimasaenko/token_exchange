@@ -39,9 +39,7 @@ contract AbstractOrderBook is OnlyOwnerContract {
         return id;
     }
 
-    function shouldBeBefore(uint orderPrice, uint newPrice) public returns(bool){
-        return orderPrice < newPrice;
-    }
+    function shouldBeBefore(uint orderPrice, uint newPrice) public returns(bool);
 
     function _addAfter(Order newOrder, uint _after) internal {
         if (_after == 0) {
