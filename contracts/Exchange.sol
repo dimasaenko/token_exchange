@@ -4,6 +4,7 @@ import "./TokenManager.sol";
 import "./ERC20Interface.sol";
 
 contract Exchange is  TokenManager {
+
     mapping (address => uint) ethBalance;
     mapping (address => mapping (bytes32 => uint)) tokenBalance;
 
@@ -114,25 +115,16 @@ contract Exchange is  TokenManager {
             return;
         }
 
-        _price = orderPrice;
-        if (orderAmount > _amount) {
-            dealAmount = _amount * orderPrice;
-            require(dealAmount/_amount == orderPrice);
-            sellBook.reduceFirstOrder(orderPrice, _amount, orderOwner);
-            reduceEthBalance(msg.sender, dealAmount);
-            increaseEthBalance(orderOwner, dealAmount);
-            increaseTokenBalance(msg.sender, _code, _amount);
-            OrderClosed(_price, _amount, msg.sender, orderOwner);
-            return;
+        if (orderAmount <= _amount) {
+            _amount = orderAmount;
         }
-
-        dealAmount = orderAmount * orderPrice;
-        require(dealAmount/orderAmount == orderPrice);
-        sellBook.removeFirstOrder(orderPrice, orderAmount, orderOwner);
+        dealAmount = _amount * orderPrice;
+        require(dealAmount/_amount == orderPrice);
+        sellBook.reduceFirstOrder(orderPrice, _amount, orderOwner);
         reduceEthBalance(msg.sender, dealAmount);
         increaseEthBalance(orderOwner, dealAmount);
-        increaseTokenBalance(msg.sender, _code, orderAmount);
-        OrderClosed(_price, orderAmount, msg.sender, orderOwner);
+        increaseTokenBalance(msg.sender, _code, _amount);
+        OrderClosed(orderPrice, _amount, msg.sender, orderOwner);
     }
 
     function addSellOrder(bytes32 _code, uint _price, uint _amount) tokenRequired(_code) {
@@ -148,25 +140,16 @@ contract Exchange is  TokenManager {
             return;
         }
 
-        _price = orderPrice;
-        if (orderAmount > _amount) {
-            var dealAmount = _amount * orderPrice;
-            require(dealAmount/_amount == orderPrice);
-            buyBook.reduceFirstOrder(orderPrice, _amount, orderOwner);
-            reduceTokenBalance(msg.sender, _code, _amount);
-            increaseTokenBalance(orderOwner, _code, _amount);
-            increaseEthBalance(msg.sender, dealAmount);
-            OrderClosed(_price, _amount, orderOwner, msg.sender);
-            return;
+        if (orderAmount <= _amount) {
+            _amount = orderAmount;
         }
-
-        dealAmount = orderAmount * orderPrice;
-        require(dealAmount/orderAmount == orderPrice);
-        buyBook.removeFirstOrder(orderPrice, orderAmount, orderOwner);
-        reduceTokenBalance(msg.sender, _code, orderAmount);
-        increaseTokenBalance(orderOwner, _code, orderAmount);
+        var dealAmount = _amount * orderPrice;
+        require(dealAmount/_amount == orderPrice);
+        buyBook.reduceFirstOrder(orderPrice, _amount, orderOwner);
+        reduceTokenBalance(msg.sender, _code, _amount);
+        increaseTokenBalance(orderOwner, _code, _amount);
         increaseEthBalance(msg.sender, dealAmount);
-        OrderClosed(_price, orderAmount, orderOwner, msg.sender);
+        OrderClosed(orderPrice, _amount, orderOwner, msg.sender);
     }
 
     function cancelSellOrder(bytes32 token, uint id, uint prev_item_id) tokenRequired(token) {

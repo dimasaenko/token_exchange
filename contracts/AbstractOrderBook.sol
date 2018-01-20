@@ -18,7 +18,10 @@ contract AbstractOrderBook is OnlyOwnerContract {
 
     mapping (uint => Order) internal list;
 
-    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint id) {
+    function addOrder(
+    uint _price,
+    uint _amount,
+    address _owner) public onlyOwner() returns (uint id) {
         require(_price > 0 && _amount > 0);
         increment_id += 1;
         id = increment_id;
@@ -53,7 +56,8 @@ contract AbstractOrderBook is OnlyOwnerContract {
         lenght += 1;
     }
 
-    function getList() public constant returns (uint[] _prices, uint[] _amounts, address[] _owners) {
+    function getList() public constant
+    returns (uint[] _prices, uint[] _amounts, address[] _owners) {
         _owners = new address[](lenght);
         _prices = new uint[](lenght);
         _amounts = new uint[](lenght);
@@ -67,7 +71,9 @@ contract AbstractOrderBook is OnlyOwnerContract {
         }
     }
 
-    function getOrdersByAddress(address _owner) public constant returns (uint[] _prices, uint[] _amounts, uint[] _ids) {
+    function getOrdersByAddress(
+    address _owner
+    ) public constant returns (uint[] _prices, uint[] _amounts, uint[] _ids) {
         _ids = new uint[](lenght);
         _prices = new uint[](lenght);
         _amounts = new uint[](lenght);
@@ -88,27 +94,30 @@ contract AbstractOrderBook is OnlyOwnerContract {
         return (item.price, item.amount, item.owner);
     }
 
-    function reduceFirstOrder(uint _price, uint _amount, address _owner) external {
+    function reduceFirstOrder(
+    uint _price,
+    uint _amount,
+    address _owner) external {
         var order = list[first];
         require(order.price == _price && order.owner == _owner);
-        require(order.amount >= _amount && order.amount > order.amount - _amount);
-        list[first].amount = order.amount - _amount;
-    }
+        if (order.amount > _amount) {
+            require(order.amount > order.amount - _amount);
+            list[first].amount = order.amount - _amount;
+            return;
+        }
 
-    function removeFirstOrder(uint _price, uint _amount, address _owner) external {
-        var order = list[first];
-        require(
-            order.price == _price &&
-            order.owner == _owner &&
-            order.amount == _amount
-        );
+        require(order.amount == _amount);
         var _first = list[first].next;
         delete list[first];
         first = _first;
         lenght -= 1;
     }
 
-    function cancelOrder(uint _id, uint prev_id, address _owner) onlyOwner() returns (uint price, uint amount) {
+    function cancelOrder(
+    uint _id,
+    uint prev_id,
+    address _owner
+    ) onlyOwner() returns (uint price, uint amount) {
         var order = list[_id];
         require(order.owner == _owner);
         if (prev_id == 0) {
