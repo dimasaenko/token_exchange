@@ -4,10 +4,10 @@ import "./AbstractOrderBook.sol";
 
 contract OrderBuyBook is AbstractOrderBook {
 
-    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint) {
+    function addOrder(uint _price, uint _amount, address _owner) public onlyOwner() returns (uint id) {
         require(_price > 0 && _amount > 0);
         increment_id += 1;
-        uint id = increment_id;
+        id = increment_id;
         var newOrder = Order(_price, _amount, _owner);
         if (lenght == 0) {
             _addAsInitial(newOrder, id);
@@ -27,5 +27,6 @@ contract OrderBuyBook is AbstractOrderBook {
             current = list[current].next;
         }
         _addAsLast(newOrder, id);
+        return id;
     }
 }
