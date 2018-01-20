@@ -57,35 +57,19 @@ contract AbstractOrderBook is OnlyOwnerContract {
     }
 
     function getList() public constant
-    returns (uint[] _prices, uint[] _amounts, address[] _owners) {
+    returns (uint[] _prices, uint[] _amounts, address[] _owners, uint[] _ids) {
         _owners = new address[](lenght);
         _prices = new uint[](lenght);
         _amounts = new uint[](lenght);
+        _ids = new uint[](lenght);
 
         var current = first;
         for (uint i = 0; i < lenght; i++) {
             _owners[i] = list[current].owner;
             _prices[i] = list[current].price;
             _amounts[i] = list[current].amount;
+            _ids[i] = current;
             current = list[current].next;
-        }
-    }
-
-    function getOrdersByAddress(
-    address _owner
-    ) public constant returns (uint[] _prices, uint[] _amounts, uint[] _ids) {
-        _ids = new uint[](lenght);
-        _prices = new uint[](lenght);
-        _amounts = new uint[](lenght);
-
-        var current = first;
-        for (uint i = 0; i < lenght; i++) {
-            if (_owner == list[current].owner) {
-                _ids[i] = current;
-                _prices[i] = list[current].price;
-                _amounts[i] = list[current].amount;
-                current = list[current].next;
-            }
         }
     }
 
