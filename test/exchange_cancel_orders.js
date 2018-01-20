@@ -114,7 +114,7 @@ contract('Exchange', function(accounts) {
     it("Place 1 buy order, cancel this order, check balance", function() {
         var order = {price : 5, amount : 20, total : 5*20, owner : accounts[1]};
 
-        return addBuyOrder(exchangeInstance, order)
+        return addBuyOrder(order)
         .then(function(result){
             assertNewBuyOrderEvent(result, order);
             return exchangeInstance.getEthBalance.call({from: accounts[1]});
@@ -165,16 +165,20 @@ contract('Exchange', function(accounts) {
         assert.equal(list[2].length, length, "Address Length should be "+length);
     }
 
-    function addBuyOrder(exchange, item) {
+    function addBuyOrder(item) {
         return exchangeInstance.addBuyOrder(tokenCodeABC, item.price, item.amount, {from: item.owner});
     }
 
-    function addSellOrder(exchange, item) {
+    function addSellOrder(item) {
         return exchangeInstance.addSellOrder(tokenCodeABC, item.price, item.amount, {from: item.owner});
     }
 
     function cancelBuyOrder(item, prev_item_id) {
         return exchangeInstance.cancelBuyOrder(tokenCodeABC, item.id, prev_item_id, {from: item.owner});
+    }
+
+    function cancelSellOrder(item, prev_item_id) {
+        return exchangeInstance.cancelSellOrder(tokenCodeABC, item.id, prev_item_id, {from: item.owner});
     }
 
     it("Place 5 buy orders, cancel them one by one, check order book, check eth balance", function(){
@@ -184,7 +188,6 @@ contract('Exchange', function(accounts) {
         var item_50_13  = {price : 50,  amount : 13, id : 0, owner : accounts[1]};
         var item_100_14 = {price : 100, amount : 14, id : 0, owner : accounts[1]};
 
-        var balance = ethBalance1;
         ethBalance1 -= item_100_11.price * item_100_11.amount;
         ethBalance1 -= item_50_27.price  * item_50_27.amount;
         ethBalance1 -= item_20_17.price  * item_20_17.amount;
@@ -192,19 +195,19 @@ contract('Exchange', function(accounts) {
         ethBalance1 -= item_100_14.price * item_100_14.amount;
 
 
-            return addBuyOrder(exchangeInstance, item_100_11)
+            return addBuyOrder(item_100_11)
         .then(function(result){
             assertNewBuyOrderEvent(result, item_100_11);
-            return addBuyOrder(exchangeInstance, item_50_27);
+            return addBuyOrder(item_50_27);
         }).then(function(result){
             assertNewBuyOrderEvent(result, item_50_27);
-            return addBuyOrder(exchangeInstance, item_20_17);
+            return addBuyOrder(item_20_17);
         }).then(function(result){
             assertNewBuyOrderEvent(result, item_20_17);
-            return addBuyOrder(exchangeInstance, item_50_13);
+            return addBuyOrder(item_50_13);
         }).then(function(result){
             assertNewBuyOrderEvent(result, item_50_13);
-            return addBuyOrder(exchangeInstance, item_100_14);
+            return addBuyOrder(item_100_14);
         }).then(function(result){
             assertNewBuyOrderEvent(result, item_100_14);
             return buyBook.getList.call();
@@ -271,6 +274,102 @@ contract('Exchange', function(accounts) {
             ethBalance1 += item_100_14.price  * item_100_14.amount;
             assert.equal(result.toNumber(), ethBalance1,
             'Ether Balance for acc[1] should be ' + ethBalance1 + ' after cancel');
+        });
+    });
+
+    it("Place 5 sell orders, cancel them one by one, check order book, check eth balance", function(){
+        var item_100_11 = {price : 100, amount : 11, id : 0, owner : accounts[2]};
+        var item_50_27  = {price : 50,  amount : 27, id : 0, owner : accounts[2]};
+        var item_20_17  = {price : 20,  amount : 17, id : 0, owner : accounts[2]};
+        var item_50_13  = {price : 50,  amount : 13, id : 0, owner : accounts[2]};
+        var item_100_14 = {price : 100, amount : 14, id : 0, owner : accounts[2]};
+
+        tokenBalance2 -= item_100_11.amount;
+        tokenBalance2 -= item_50_27.amount;
+        tokenBalance2 -= item_20_17.amount;
+        tokenBalance2 -= item_50_13.amount;
+        tokenBalance2 -= item_100_14.amount;
+
+
+            return addSellOrder(item_100_11)
+        .then(function(result){
+            assertNewSellOrderEvent(result, item_100_11);
+            return addSellOrder(item_50_27);
+        }).then(function(result){
+            assertNewSellOrderEvent(result, item_50_27);
+            return addSellOrder(item_20_17);
+        }).then(function(result){
+            assertNewSellOrderEvent(result, item_20_17);
+            return addSellOrder(item_50_13);
+        }).then(function(result){
+            assertNewSellOrderEvent(result, item_50_13);
+            return addSellOrder(item_100_14);
+        }).then(function(result){
+            assertNewSellOrderEvent(result, item_100_14);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, [item_20_17, item_50_27, item_50_13, item_100_11, item_100_14]);
+        }).then(function(){
+
+            return cancelSellOrder(item_50_13, item_50_27.id);
+        }).then(function(result){
+            assertOrderCancelEvent(result, item_50_13);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, [item_20_17, item_50_27, item_100_11, item_100_14]);
+            return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
+        }).then(function(result){
+            tokenBalance2 += item_50_13.amount;
+            assert.equal(result.toNumber(), tokenBalance2,
+            'Token Balance for acc[2] should be '+ tokenBalance2 + ' after cancel');
+
+            return cancelSellOrder(item_100_11, item_50_27.id);
+        }).then(function(result){
+            assertOrderCancelEvent(result, item_100_11);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, [item_20_17, item_50_27, item_100_14]);
+            return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
+        }).then(function(result){
+            tokenBalance2 += item_100_11.amount;
+            assert.equal(result.toNumber(), tokenBalance2,
+            'Token Balance for acc[2] should be '+ tokenBalance2 + ' after cancel');
+
+            return cancelSellOrder(item_20_17, 0);
+        }).then(function(result){
+            assertOrderCancelEvent(result, item_20_17);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, [item_50_27, item_100_14]);
+            return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
+        }).then(function(result){
+            tokenBalance2 += item_20_17.amount;
+            assert.equal(result.toNumber(), tokenBalance2,
+            'Token Balance for acc[2] should be '+ tokenBalance2 + ' after cancel');
+
+            return cancelSellOrder(item_100_14, item_50_27.id);
+        }).then(function(result){
+            assertOrderCancelEvent(result, item_100_14);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, [item_50_27]);
+            return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
+        }).then(function(result){
+            tokenBalance2 += item_100_14.amount;
+            assert.equal(result.toNumber(), tokenBalance2,
+            'Token Balance for acc[2] should be '+ tokenBalance2 + ' after cancel');
+
+            return cancelSellOrder(item_50_27, 0);
+        }).then(function(result){
+            assertOrderCancelEvent(result, item_50_27);
+            return sellBook.getList.call();
+        }).then(function(result){
+            assertOrderList(result, []);
+            return exchangeInstance.getTokenBalance(tokenCodeABC, {from: accounts[2]});
+        }).then(function(result){
+            tokenBalance2 += item_50_27.amount;
+            assert.equal(result.toNumber(), tokenBalance2,
+            'Token Balance for acc[2] should be '+ tokenBalance2 + ' after cancel');
         });
     });
 });
